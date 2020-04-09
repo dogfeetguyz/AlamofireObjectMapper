@@ -51,7 +51,23 @@ extension DataRequest {
             }
             
             return JSON
-        }
+        } else {
+           // to serialize json data, the data must be encoded in utf-8
+           let jsonString = String(data: data!, encoding: .isoLatin1)
+           let jsonData = jsonString?.data(using: .utf8)
+   
+           if let result = try? jsonResponseSerializer.serialize(request: request, response: response, data: jsonData, error: nil) {
+               
+               let JSON: Any?
+               if let keyPath = keyPath , keyPath.isEmpty == false {
+                   JSON = (result as AnyObject?)?.value(forKeyPath: keyPath)
+               } else {
+                   JSON = result
+               }
+               
+               return JSON
+           }
+       }
         
         return nil
     }
